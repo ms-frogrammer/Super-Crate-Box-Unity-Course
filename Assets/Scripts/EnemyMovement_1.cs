@@ -14,7 +14,7 @@ public class EnemyMovement_1 : MonoBehaviour
     private Rigidbody2D rb;            // Rigidbody of the player
     private bool facingRight = true;  // For determining which way the player is currently facing.
     private Vector3 vel = Vector3.zero;
-
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -40,7 +40,6 @@ public class EnemyMovement_1 : MonoBehaviour
         bool wasGrounded = isGrounded;
         isGrounded = false;
 
-        // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
         // This can be done using layers instead but Sample Assets will not overwrite your project settings.
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.position, groundCheckRadius, whatIsGround);
         for (int i = 0; i < colliders.Length; i++)
@@ -55,7 +54,11 @@ public class EnemyMovement_1 : MonoBehaviour
             Flip();
         }
 
-        Move((facingRight ? 1 : -1) * runSpd * Time.deltaTime);
+        float _spd = runSpd;
+        if (controller.isDemonMode) {
+            _spd = runSpd * 1.5f;
+        }
+        Move((facingRight ? 1 : -1) * _spd * Time.deltaTime);
     }
 
     public void Move(float move)

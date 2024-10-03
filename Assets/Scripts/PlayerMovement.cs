@@ -6,13 +6,13 @@ using UnityEngine.Events;
 public class PlayerMovement : MonoBehaviour
 {
     private PlayerController controller;
-    [SerializeField] private float jumpPower = 22;                                  // Immediate force added the moment player presses jump
-    [SerializeField] private float jumpForce = 125;                                 // Force that is added while the player is holding the jump
-    [SerializeField] private float jumpDuration = 0.2f;                            // How long the player can hold the jump button
-    [SerializeField] private float runSpd = 70f;                                 // Movement speed
-    [SerializeField] private LayerMask whatIsGround;                           // A mask determining what is ground to the character
-    [SerializeField] private Transform groundCheck;                           // A position marking where to check if the player is grounded.
-    private float cayoteeTime = 0.2f;                                        // Time after player dropped off the platfrom but still can jump
+    [SerializeField] private float jumpPower = 10;                                  // Immediate force added the moment player presses jump
+    [SerializeField] private float jumpForce = 45;                                 // Force that is added while the player is holding the jump
+    [SerializeField] private float jumpDuration = 0.25f;                          // How long the player can hold the jump button
+    [SerializeField] private float runSpd = 35f;                                 // Movement speed
+    [SerializeField] private LayerMask whatIsGround;                            // A mask determining what is ground to the character
+    [SerializeField] private Transform groundCheck;                            // A position marking where to check if the player is grounded.
+    private float cayoteeTime = 0.2f;                                         // Time after the player has dropped off the platfrom but is still able to jump
     const float groundCheckRadius = .1f; // Radius of the overlap circle to determine if grounded
     private bool isGrounded;            // Whether or not the player is grounded.
     private Rigidbody2D rb;            // Rigidbody of the player
@@ -25,18 +25,10 @@ public class PlayerMovement : MonoBehaviour
     private float jumpTime = 0; // How much time passed since the button was pressed
     private bool isJumping = false; // Is currently jumping (holding the button)
 
-    [Header("Events")]
-    [Space]
-
-    public UnityEvent OnLandEvent;
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<PlayerController>();
-
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
     }
 
     private void Update()
@@ -44,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
         if (controller.isDead) return;
 
         inpHor = Input.GetAxisRaw("Horizontal");
-        if (Input.GetButton("Jump") && !isJumping && (isGrounded || cayoteeTime > 0f))
+        if (Input.GetButton("Jump") && !isJumping && (isGrounded || cayoteeTime > 0f)) // Begin Jumping
         {
             isJumping = true;
             jumpTime = 0f;
@@ -53,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector2(0f, jumpPower);
         }
 
-        if (Input.GetButton("Jump") && isJumping)
+        if (Input.GetButton("Jump") && isJumping) // Holding Jump
         {
             if (jumpTime > jumpDuration)
             {
@@ -61,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else jumpTime += Time.deltaTime;
         }
-        else if (Input.GetButtonUp("Jump")) isJumping = false;
+        else if (Input.GetButtonUp("Jump")) isJumping = false; // Release the Jump
     }
     private void FixedUpdate()
     {
@@ -76,8 +68,8 @@ public class PlayerMovement : MonoBehaviour
             if (colliders[i].gameObject != gameObject)
             {
                 isGrounded = true;
-                if (!wasGrounded)
-                    OnLandEvent.Invoke();
+                //if (!wasGrounded)
+                  
             }
         }
 
@@ -89,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
     {
 
         // Move the character
-        rb.velocity = new Vector2(move * 10f, rb.velocity.y); ;
+        rb.velocity = new Vector2(move * 10f, rb.velocity.y);
 
         if (isGrounded)
         {

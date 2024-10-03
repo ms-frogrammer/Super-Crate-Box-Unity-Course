@@ -11,10 +11,13 @@ public class Pistol : MonoBehaviour
     [SerializeField] private float bulletSpd = 40;
 
     private float fireRate = 0;
+    [SerializeField] private float shakeDur = .15f;
+    [SerializeField] private float shakeStr = .4f;
+    ScreenShake camShake;
     // Start is called before the first frame update
     void Start()
     {
-        
+        camShake = FindObjectOfType<ScreenShake>().GetComponent<ScreenShake>();
     }
 
     // Update is called once per frame
@@ -30,6 +33,7 @@ public class Pistol : MonoBehaviour
             _bulletComp.damage = damage;
 
             fireRate = fireMaxRate;
+            StartCoroutine(camShake.Shake(shakeDur, shakeStr));
         }
         if (fireRate > 0) fireRate -= Time.deltaTime;
     }

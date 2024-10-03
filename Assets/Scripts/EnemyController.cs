@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public LayerMask killLayer;
     public bool isDead = false;
     public int HP = 5;
 
     public SpriteRenderer spr;
     private float damagedTime = 0;
+
+    [HideInInspector]
+    public bool isDemonMode = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,18 +23,16 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         if (transform.position.y <= -12f) {
-            Destroy(gameObject);
+            if (isDead) Destroy(gameObject);
+            else {
+                isDemonMode = true;
+                transform.position = new Vector3(0, 5.5f, 0);
+            }
+           
         }
 
         if (!isDead)
         {
-            Collider2D bullet = Physics2D.OverlapCircle(transform.position, 0.5f, killLayer);
-            if (bullet)
-            {
-                HP -= bullet.gameObject.GetComponent<Bullet>().damage;
-                damagedTime = 0.075f;
-                Destroy(bullet.gameObject);
-            }
             if (HP <= 0)
             {
                 Died();
@@ -41,15 +42,29 @@ public class EnemyController : MonoBehaviour
 
         if (damagedTime > 0) {
             damagedTime -= Time.deltaTime;
-            spr.color = Color.red;
-        }
-        else spr.color = Color.white;
-    }
 
+            spr.color = isDemonMode ? Color.white : Color.red;
+        }
+        else spr.color = isDemonMode ? Color.red : Color.white;
+
+
+
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (isDead) return;
+        if (collision.gameObject.tag == "Bullet")
+        {
+            HP -= collision.gameObject.GetComponent<Bullet>().damage;
+            damagedTime = 0.075f;
+            Destroy(collision.gameObject);
+        }
+    }
     void Died()
     {
         isDead = true;
         GetComponent<BoxCollider2D>().enabled = false;
         GetComponent<Rigidbody2D>().velocity += new Vector2(0f, 15);
+
     }
 }
